@@ -1,6 +1,8 @@
 const express=require('express')
 const Task=require('../models/task')
 const auth=require('../middleware/auth')
+const mongoose = require('mongoose')
+const { ObjectId } = require('mongoose')
 const router= new express.Router()
 
 router.post('/tasks',auth, async (req,res)=>{
@@ -44,22 +46,22 @@ router.get('/tasks',auth, async (req,res)=>{
     }
 })
 
-router.get('/tasks/:id',auth, async (req, res) => {
-    const _id = req.params.id
+router.get('/tasks/:id', auth, async (req, res) => {
     try {
-        const task = await Task.findOne({
-            _id,
-            owner: req.user._id
-        });
-        if (!task) {
-            return res.status(404).send()
+        const _id=req.params.id
+        console.log(mongoose.Types.ObjectId.isValid('61f98d5a34d8e107c4310c38'))
+        console.log(mongoose.Types.ObjectId.isValid(_id))
+        console.log(_id)
+           const task= await Task.findOne({ _id:_id,owner:req.user._id })
+        if(!task){
+           return res.status(404).send()
         }
         res.send(task)
-    } catch (e) {
-        res.status(500).send()
+    
+    }catch(e){
+        res.status(500).send(e)
     }
-})
-
+}) 
 
 router.patch('/tasks/:id',auth, async (req,res)=>{
     const updates = Object.keys(req.body)
@@ -72,17 +74,23 @@ router.patch('/tasks/:id',auth, async (req,res)=>{
         return res.status(400).send({ error:'Invalid updates!'})
     }
     try{
-        const task= await Task.findOne({ _id:req.params.id,owner:req.user._id})
+        if(mongoose.Types.ObjectId.isValid(req.params.id))
+       {
+           const task= await Task.findOne({_id:req.params.id,owner:req.user._id})
         if(!task){
            return res.status(404).send()
         }
         updates.forEach((update) => task[update]=req.body[update])
         await task.save()
         res.send(task)
+    }
     }catch(e){
         res.status(400).send(e)
     }
 })
+
+
+
 
 router.delete('/tasks/:id',auth,async (req,res)=>{
     try{
