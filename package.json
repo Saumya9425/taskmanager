@@ -8,7 +8,7 @@
     "dev": "env-cmd ./config/dev.env nodemon src/index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Saumya Chaudhary",
   "license": "ISC",
   "dependencies": {
     "@sendgrid/mail": "^6.3.1",
